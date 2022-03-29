@@ -1,0 +1,307 @@
+#![feature(prelude_import)]
+#[prelude_import]
+use std::prelude::rust_2021::*;
+#[macro_use]
+extern crate std;
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const empty: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(empty())),
+};
+fn empty() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const empty_with_parentheses: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty_with_parentheses"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(empty_with_parentheses())),
+};
+fn empty_with_parentheses() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const empty_tail_expr: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty_tail_expr"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(empty_tail_expr())),
+};
+fn empty_tail_expr() -> anyhow::Result<()> {
+    let body = async { Ok(()) };
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body)
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const empty_return_expr: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty_return_expr"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(empty_return_expr())),
+};
+fn empty_return_expr() -> anyhow::Result<()> {
+    let body = async {
+        return Ok(());
+    };
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    return rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const empty_trace_span: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("empty_trace_span"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(empty_trace_span())),
+};
+fn empty_trace_span() {
+    let body = async {};
+    use tracing_futures::Instrument;
+    let body_span = {
+        use ::tracing::__macro_support::Callsite as _;
+        static CALLSITE: ::tracing::__macro_support::MacroCallsite = {
+            use ::tracing::__macro_support::MacroCallsite;
+            static META: ::tracing::Metadata<'static> = {
+                ::tracing_core::metadata::Metadata::new(
+                    empty_trace_span,
+                    "it",
+                    ::tracing::Level::INFO,
+                    Some("tests/it.rs"),
+                    Some(17u32),
+                    Some("it"),
+                    ::tracing_core::field::FieldSet::new(
+                        &[],
+                        ::tracing_core::callsite::Identifier(&CALLSITE),
+                    ),
+                    ::tracing::metadata::Kind::SPAN,
+                )
+            };
+            MacroCallsite::new(&META)
+        };
+        let mut interest = ::tracing::subscriber::Interest::never();
+        if ::tracing::Level::INFO <= ::tracing::level_filters::STATIC_MAX_LEVEL
+            && ::tracing::Level::INFO <= ::tracing::level_filters::LevelFilter::current()
+            && {
+                interest = CALLSITE.interest();
+                !interest.is_never()
+            }
+            && CALLSITE.is_enabled(interest)
+        {
+            let meta = CALLSITE.metadata();
+            ::tracing::Span::new(meta, &{ meta.fields().value_set(&[]) })
+        } else {
+            let span = CALLSITE.disabled_span();
+            {};
+            span
+        }
+    };
+    let body = body.instrument(body_span);
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+fn g() {}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const with_init: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("with_init"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(with_init())),
+};
+fn with_init() {
+    let _g = g();
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const current_thread: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("current_thread"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(current_thread())),
+};
+fn current_thread() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const multi_thread: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("multi_thread"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(multi_thread())),
+};
+fn multi_thread() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const multi_thread_n: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("multi_thread_n"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(multi_thread_n())),
+};
+fn multi_thread_n() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(10usize)
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const start_paused: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("start_paused"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(start_paused())),
+};
+fn start_paused() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .start_paused(true)
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+#[rustc_main]
+pub fn main() -> () {
+    extern crate test;
+    test::test_main_static(&[
+        &empty,
+        &empty_with_parentheses,
+        &empty_tail_expr,
+        &empty_return_expr,
+        &empty_trace_span,
+        &with_init,
+        &current_thread,
+        &multi_thread,
+        &multi_thread_n,
+        &start_paused,
+    ])
+}
