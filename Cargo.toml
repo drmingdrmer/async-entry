@@ -1,6 +1,6 @@
 [package]
 name = "async-entry"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 
 authors = ["drdr.xp <drdr.xp@gmail.com>"]

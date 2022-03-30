@@ -242,6 +242,30 @@ fn multi_thread() {
 extern crate test;
 #[cfg(test)]
 #[rustc_test_marker]
+pub const multi_thread_0: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("multi_thread_0"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(multi_thread_0())),
+};
+fn multi_thread_0() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
 pub const multi_thread_n: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multi_thread_n"),
@@ -255,6 +279,31 @@ pub const multi_thread_n: test::TestDescAndFn = test::TestDescAndFn {
     testfn: test::StaticTestFn(|| test::assert_test_result(multi_thread_n())),
 };
 fn multi_thread_n() {
+    let body = async {};
+    let rt = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(10usize)
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const multi_thread_n_without_flavor: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("multi_thread_n_without_flavor"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(multi_thread_n_without_flavor())),
+};
+fn multi_thread_n_without_flavor() {
     let body = async {};
     let rt = tokio::runtime::Builder::new_multi_thread()
         .worker_threads(10usize)
@@ -301,7 +350,9 @@ pub fn main() -> () {
         &with_init,
         &current_thread,
         &multi_thread,
+        &multi_thread_0,
         &multi_thread_n,
+        &multi_thread_n_without_flavor,
         &start_paused,
     ])
 }

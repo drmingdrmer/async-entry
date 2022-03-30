@@ -28,8 +28,14 @@ async fn current_thread() {}
 #[async_entry::test(flavor = "multi_thread" )]
 async fn multi_thread() {}
 
+#[async_entry::test(worker_threads=0 )]
+async fn multi_thread_0() {}
+
 #[async_entry::test(flavor = "multi_thread", worker_threads=10 )]
 async fn multi_thread_n() {}
+
+#[async_entry::test(worker_threads=10 )]
+async fn multi_thread_n_without_flavor() {}
 
 #[async_entry::test(start_paused=true )]
 async fn start_paused() {}

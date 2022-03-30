@@ -104,9 +104,13 @@ impl Configuration {
 
         let worker_threads = parse_int(worker_threads, span, "worker_threads")?;
         if worker_threads == 0 {
-            return Err(syn::Error::new(span, "`worker_threads` may not be 0."));
+            self.flavor = Some(RuntimeFlavor::CurrentThread);
+            self.worker_threads = None;
+        } else {
+            self.flavor = Some(RuntimeFlavor::Threaded);
+            self.worker_threads = Some((worker_threads, span));
         }
-        self.worker_threads = Some((worker_threads, span));
+
         Ok(())
     }
 
@@ -331,6 +335,9 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///     assert!(true);
 /// }
 /// ```
+///
+/// `worker_threads>0` implies `flavor="multi_thread"`.
+/// `worker_threads==0` implies `flavor="current_thread"`.
 ///
 /// ### Using default
 ///
