@@ -326,7 +326,7 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ### Multi-thread runtime
 ///
 /// ```no_run
-/// #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
+/// #[async_entry::test(flavor = "multi_thread", worker_threads = 1)]
 /// async fn my_test() {
 ///     assert!(true);
 /// }
@@ -337,7 +337,7 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// The default test runtime is single-threaded.
 ///
 /// ```no_run
-/// #[tokio::test]
+/// #[async_entry::test]
 /// async fn my_test() {
 ///     assert!(true);
 /// }
@@ -346,7 +346,7 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ### Configure the runtime to start with time paused
 ///
 /// ```no_run
-/// #[tokio::test(start_paused = true)]
+/// #[async_entry::test(start_paused = true)]
 /// async fn my_test() {
 ///     assert!(true);
 /// }
@@ -357,7 +357,7 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ### Add initialization statement
 ///
 /// ```no_run
-/// #[tokio::test(init = "init_log!()")]
+/// #[async_entry::test(init = "init_log!()")]
 /// async fn my_test() {
 ///     assert!(true);
 /// }
@@ -376,7 +376,7 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 /// ### Add tracing span over the test fn
 ///
 /// ```no_run
-/// #[tokio::test(tracing_span = "info")]
+/// #[async_entry::test(tracing_span = "info")]
 /// async fn my_test() {
 ///     assert!(true);
 /// }
@@ -396,10 +396,7 @@ pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ### NOTE:
 ///
-/// If you rename the Tokio crate in your dependencies this macro will not work.
-/// If you must rename the current version of Tokio because you're also using an
-/// older version of Tokio, you _must_ make the current version of Tokio
-/// available as `tokio` in the module where this macro is expanded.
+/// If you rename the async_entry crate in your dependencies this macro will not work.
 #[proc_macro_attribute]
 pub fn test(args: TokenStream, item: TokenStream) -> TokenStream {
     let tokens = entry_test(args, item.clone());
@@ -484,7 +481,7 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
         let add_tracing_span = format!(
             r#"
             use tracing_futures::Instrument;
-            let body_span = tracing::{}_span!({});
+            let body_span = tracing::{}_span!("{}");
             let body = body.instrument(body_span);
         "#,
             level, fn_name

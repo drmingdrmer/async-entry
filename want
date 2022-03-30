@@ -125,7 +125,7 @@ fn empty_trace_span() {
             use ::tracing::__macro_support::MacroCallsite;
             static META: ::tracing::Metadata<'static> = {
                 ::tracing_core::metadata::Metadata::new(
-                    empty_trace_span,
+                    "empty_trace_span",
                     "it",
                     ::tracing::Level::INFO,
                     Some("tests/it.rs"),

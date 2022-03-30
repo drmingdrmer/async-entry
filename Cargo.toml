@@ -1,6 +1,6 @@
 [package]
 name = "async-entry"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 authors = ["drdr.xp <drdr.xp@gmail.com>"]
@@ -23,6 +23,6 @@ proc-macro2 = "1.0.7"
 
 [dev-dependencies]
 anyhow = "1.0.55"
-tokio = { version = "1.7.1", features = ["macros", "rt","rt-multi-thread", "sync"] }
+tokio = { version = "1.7.1", features = ["macros", "rt","rt-multi-thread", "sync", "test-util"] }
 tracing = "0.1.29"
 tracing-futures = "0.2.4"
