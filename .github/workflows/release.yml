@@ -19,4 +19,4 @@ jobs:
           override: true
 
       - name: Publish async-entry
-        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
+        run: cd async-entry && cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}

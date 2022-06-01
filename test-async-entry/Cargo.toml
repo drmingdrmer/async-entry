@@ -1,0 +1,28 @@
+[package]
+name = "test-async-entry"
+version = "0.1.0"
+edition = "2021"
+
+authors = ["drdr.xp <drdr.xp@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/drmingdrmer/async-entry"
+homepage = "https://github.com/drmingdrmer/async-entry"
+description = """
+extended Tokio's proc macros.
+"""
+categories = ["asynchronous"]
+
+
+
+[dependencies]
+syn = { version = "1.0.56", features = ["full"] }
+quote = "1"
+proc-macro2 = "1.0.7"
+
+
+[dev-dependencies]
+anyhow = "1.0.55"
+async-entry = { path = "../async-entry"}
+lib-crate = { path = "../lib-crate"}
+
+tracing = "0.1.29"

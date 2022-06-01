@@ -10,9 +10,7 @@ Cargo.lock
 **/*.rs.bk
 
 
-# Added by cargo
-
-/target
+target/
 
 
 # Clion

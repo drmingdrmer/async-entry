@@ -34,6 +34,7 @@ struct FinalConfig {
     start_paused: Option<bool>,
     init: Option<(String, Span)>,
     tracing_span: Option<(String, Span)>,
+    tracing_lib: Option<(String, Span)>,
 }
 
 struct Configuration {
@@ -45,6 +46,9 @@ struct Configuration {
     is_test: bool,
     init: Option<(String, Span)>,
     tracing_span: Option<(String, Span)>,
+
+    /// Import `tracing` and `tracing_future` in another crate or mod, e.g. `tracing_lib::tracing`, instead of using `::tracing`.
+    tracing_lib: Option<(String, Span)>,
 }
 
 impl Configuration {
@@ -61,6 +65,7 @@ impl Configuration {
             is_test,
             init: None,
             tracing_span: None,
+            tracing_lib: None,
         }
     }
 
@@ -77,7 +82,7 @@ impl Configuration {
 
     fn set_init(&mut self, init_fn: syn::Lit, span: Span) -> Result<(), syn::Error> {
         if self.init.is_some() {
-            return Err(syn::Error::new(span, "`flavor` set multiple times."));
+            return Err(syn::Error::new(span, "`init` set multiple times."));
         }
 
         let init_expr = parse_string(init_fn, span, "init")?;
@@ -88,11 +93,23 @@ impl Configuration {
 
     fn set_tracing_span(&mut self, level: syn::Lit, span: Span) -> Result<(), syn::Error> {
         if self.tracing_span.is_some() {
-            return Err(syn::Error::new(span, "`flavor` set multiple times."));
+            return Err(syn::Error::new(span, "`tracing_span` set multiple times."));
         }
 
         let tracing_span = parse_string(level, span, "tracing_span")?;
         self.tracing_span = Some((tracing_span, span));
+
+        Ok(())
+    }
+
+    // TODO: test internal, test-async-entry
+    fn set_tracing_lib(&mut self, level: syn::Lit, span: Span) -> Result<(), syn::Error> {
+        if self.tracing_lib.is_some() {
+            return Err(syn::Error::new(span, "`tracing_lib` set multiple times."));
+        }
+
+        let tracing_lib = parse_string(level, span, "tracing_lib")?;
+        self.tracing_lib = Some((tracing_lib, span));
 
         Ok(())
     }
@@ -174,6 +191,7 @@ impl Configuration {
             start_paused,
             init: self.init.clone(),
             tracing_span: self.tracing_span.clone(),
+            tracing_lib: self.tracing_lib.clone(),
         })
     }
 }
@@ -245,6 +263,9 @@ fn build_config(args: AttributeArgs, rt_multi_thread: bool) -> Result<FinalConfi
                     "tracing_span" => {
                         config.set_tracing_span(namevalue.lit.clone(), syn::spanned::Spanned::span(&namevalue.lit))?;
                     }
+                    "tracing_lib" => {
+                        config.set_tracing_lib(namevalue.lit.clone(), syn::spanned::Spanned::span(&namevalue.lit))?;
+                    }
 
                     name => {
                         let msg = format!(
@@ -289,8 +310,14 @@ fn build_config(args: AttributeArgs, rt_multi_thread: bool) -> Result<FinalConfi
                             name
                         )
                     }
+                    "tracing_lib" => {
+                        format!(
+                            "The `{}` attribute requires an argument of level of the span, e.g. \"my_lib\" or \"\".",
+                            name
+                        )
+                    }
                     name => {
-                        format!("Unknown attribute {} is specified; expected one of: `flavor`, `worker_threads`, `start_paused`, `init`, `tracing_span`", name)
+                        format!("Unknown attribute {} is specified; expected one of: `flavor`, `worker_threads`, `start_paused`, `init`, `tracing_span`, `tracing_lib`", name)
                     }
                 };
                 return Err(syn::Error::new_spanned(path, msg));
@@ -375,9 +402,30 @@ type AttributeArgs = syn::punctuated::Punctuated<syn::NestedMeta, syn::Token![,]
 /// // fn my_test() {
 /// //     let body = async { assert!(true); };
 /// //
-/// //     use tracing_futures::Instrument;                 // Add tracing span
-/// //     let body_span = tracing::info_span("my_test");   //
+/// //     use ::tracing::Instrument;                       // Add tracing span
+/// //     let body_span = ::tracing::info_span("my_test"); //
 /// //     let body = body.instrument(body_span);           //
+/// //
+/// //     let rt = ...
+/// //     rt.block_on(body);
+/// // }
+/// ```
+///
+/// ### Use other lib to import `tracing` and `tracing_future`
+///
+/// ```no_run
+/// #[async_entry::test(tracing_span = "info" ,tracing_lib="my_lib")]
+/// async fn my_test() {
+///     assert!(true);
+/// }
+/// // Will produce:
+/// //
+/// // fn my_test() {
+/// //     let body = async { assert!(true); };
+/// //
+/// //     use my_lib::tracing::Instrument;                         // Add tracing span
+/// //     let body_span = my_lib::tracing::info_span("my_test");   //
+/// //     let body = body.instrument(body_span);                   //
 /// //
 /// //     let rt = ...
 /// //     rt.block_on(body);
@@ -467,14 +515,20 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
     };
 
     let body_tracing_span = if let Some(tspan) = config.tracing_span {
+        let tracing_lib = if let Some(l) = config.tracing_lib {
+            format!("{}::", l.0)
+        } else {
+            "".to_string()
+        };
+
         let level = tspan.0;
         let add_tracing_span = format!(
             r#"
-            use tracing_futures::Instrument;
-            let body_span = ::tracing::{}_span!("{}");
+            use {}tracing::Instrument;
+            let body_span = {}tracing::{}_span!("{}");
             let body = body.instrument(body_span);
         "#,
-            level, fn_name
+            tracing_lib, tracing_lib, level, fn_name
         );
 
         let tracing_span = str_to_p2tokens(&add_tracing_span, tspan.1)?;

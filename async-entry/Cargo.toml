@@ -1,0 +1,27 @@
+[package]
+name = "async-entry"
+version = "0.3.0"
+edition = "2021"
+
+authors = ["drdr.xp <drdr.xp@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/drmingdrmer/async-entry"
+homepage = "https://github.com/drmingdrmer/async-entry"
+description = """
+extended Tokio's proc macros.
+"""
+categories = ["asynchronous"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "1.0.56", features = ["full"] }
+quote = "1"
+proc-macro2 = "1.0.7"
+
+
+[dev-dependencies]
+anyhow = "1.0.55"
+tokio = { version = "1.7.1", features = ["macros", "rt","rt-multi-thread", "sync", "test-util"] }
+tracing = "0.1.29"
