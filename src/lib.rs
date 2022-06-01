@@ -470,7 +470,7 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
         let level = tspan.0;
         let add_tracing_span = format!(
             r#"
-            use ::tracing_futures::Instrument;
+            use tracing_futures::Instrument;
             let body_span = ::tracing::{}_span!("{}");
             let body = body.instrument(body_span);
         "#,
