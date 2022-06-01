@@ -182,7 +182,7 @@ pub const empty_trace_lib: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn empty_trace_lib() {
     let body = async {};
-    use ::tracing::Instrument;
+    use tracing::Instrument;
     let body_span = {
         use ::tracing::__macro_support::Callsite as _;
         static CALLSITE: ::tracing::__macro_support::MacroCallsite = {

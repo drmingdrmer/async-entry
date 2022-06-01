@@ -22,6 +22,9 @@ async fn empty_return_expr() -> anyhow::Result<()> {
 #[async_entry::test(tracing_span = "info")]
 async fn empty_trace_span() {}
 
+#[async_entry::test(tracing_span = "info", tracing_lib = "::")]
+async fn specify_trace_lib_to_root() {}
+
 fn g() {}
 
 #[async_entry::test(init = "g()")]

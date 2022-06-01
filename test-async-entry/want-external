@@ -167,6 +167,70 @@ fn empty_trace_span() {
     #[allow(clippy::expect_used)]
     rt.block_on(body);
 }
+extern crate test;
+#[cfg(test)]
+#[rustc_test_marker]
+pub const specify_trace_lib_to_root: test::TestDescAndFn = test::TestDescAndFn {
+    desc: test::TestDesc {
+        name: test::StaticTestName("specify_trace_lib_to_root"),
+        ignore: false,
+        ignore_message: ::core::option::Option::None,
+        compile_fail: false,
+        no_run: false,
+        should_panic: test::ShouldPanic::No,
+        test_type: test::TestType::IntegrationTest,
+    },
+    testfn: test::StaticTestFn(|| test::assert_test_result(specify_trace_lib_to_root())),
+};
+fn specify_trace_lib_to_root() {
+    let body = async {};
+    use ::tracing::Instrument;
+    let body_span = {
+        use ::tracing::__macro_support::Callsite as _;
+        static CALLSITE: ::tracing::__macro_support::MacroCallsite = {
+            use ::tracing::__macro_support::MacroCallsite;
+            static META: ::tracing::Metadata<'static> = {
+                ::tracing_core::metadata::Metadata::new(
+                    "specify_trace_lib_to_root",
+                    "it_external",
+                    ::tracing::Level::INFO,
+                    Some("test-async-entry/tests/it-external.rs"),
+                    Some(25u32),
+                    Some("it_external"),
+                    ::tracing_core::field::FieldSet::new(
+                        &[],
+                        ::tracing_core::callsite::Identifier(&CALLSITE),
+                    ),
+                    ::tracing::metadata::Kind::SPAN,
+                )
+            };
+            MacroCallsite::new(&META)
+        };
+        let mut interest = ::tracing::subscriber::Interest::never();
+        if ::tracing::Level::INFO <= ::tracing::level_filters::STATIC_MAX_LEVEL
+            && ::tracing::Level::INFO <= ::tracing::level_filters::LevelFilter::current()
+            && {
+                interest = CALLSITE.interest();
+                !interest.is_never()
+            }
+            && CALLSITE.is_enabled(interest)
+        {
+            let meta = CALLSITE.metadata();
+            ::tracing::Span::new(meta, &{ meta.fields().value_set(&[]) })
+        } else {
+            let span = CALLSITE.disabled_span();
+            {};
+            span
+        }
+    };
+    let body = body.instrument(body_span);
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed building the Runtime");
+    #[allow(clippy::expect_used)]
+    rt.block_on(body);
+}
 fn g() {}
 extern crate test;
 #[cfg(test)]
@@ -349,6 +413,7 @@ pub fn main() -> () {
         &empty_tail_expr,
         &empty_return_expr,
         &empty_trace_span,
+        &specify_trace_lib_to_root,
         &with_init,
         &current_thread,
         &multi_thread,

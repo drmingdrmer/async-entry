@@ -47,7 +47,7 @@ struct Configuration {
     init: Option<(String, Span)>,
     tracing_span: Option<(String, Span)>,
 
-    /// Import `tracing` and `tracing_future` in another crate or mod, e.g. `tracing_lib::tracing`, instead of using `::tracing`.
+    /// Import `tracing` and `tracing_future` in another crate or mod, e.g. `tracing_lib::tracing`, instead of using `tracing`.
     tracing_lib: Option<(String, Span)>,
 }
 
@@ -312,7 +312,7 @@ fn build_config(args: AttributeArgs, rt_multi_thread: bool) -> Result<FinalConfi
                     }
                     "tracing_lib" => {
                         format!(
-                            "The `{}` attribute requires an argument of level of the span, e.g. \"my_lib\" or \"\".",
+                            "The `{}` attribute requires an argument of level of the span, e.g. \"my_lib::\" or \"::\" or \"\".",
                             name
                         )
                     }
@@ -414,7 +414,7 @@ type AttributeArgs = syn::punctuated::Punctuated<syn::NestedMeta, syn::Token![,]
 /// ### Use other lib to import `tracing` and `tracing_future`
 ///
 /// ```no_run
-/// #[async_entry::test(tracing_span = "info" ,tracing_lib="my_lib")]
+/// #[async_entry::test(tracing_span = "info" ,tracing_lib="my_lib::")]
 /// async fn my_test() {
 ///     assert!(true);
 /// }
@@ -516,7 +516,7 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
 
     let body_tracing_span = if let Some(tspan) = config.tracing_span {
         let tracing_lib = if let Some(l) = config.tracing_lib {
-            format!("{}::", l.0)
+            l.0.clone()
         } else {
             "".to_string()
         };
@@ -524,8 +524,8 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
         let level = tspan.0;
         let add_tracing_span = format!(
             r#"
-            use {}tracing::Instrument;
-            let body_span = {}tracing::{}_span!("{}");
+            use {} tracing::Instrument;
+            let body_span = {} tracing::{}_span!("{}");
             let body = body.instrument(body_span);
         "#,
             tracing_lib, tracing_lib, level, fn_name
