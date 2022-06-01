@@ -306,23 +306,6 @@ fn build_config(args: AttributeArgs, rt_multi_thread: bool) -> Result<FinalConfi
 
 type AttributeArgs = syn::punctuated::Punctuated<syn::NestedMeta, syn::Token![,]>;
 
-#[proc_macro]
-pub fn new_fn(item: TokenStream) -> TokenStream {
-    println!("item: \"{}\"", item.to_string());
-
-    let t = "fn foo() -> u32 { 3}".parse();
-    t.unwrap()
-}
-
-#[proc_macro_attribute]
-pub fn wrap_it(attr: TokenStream, item: TokenStream) -> TokenStream {
-    println!("attr: \"{}\"", attr.to_string());
-    println!("item: \"{}\"", item.to_string());
-
-    let t = "fn bar() -> u32 { println!(\"okok\");  4}".parse();
-    t.unwrap()
-}
-
 /// Marks async function to be executed by runtime, suitable to test environment
 ///
 /// ## Usage
@@ -487,8 +470,8 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
         let level = tspan.0;
         let add_tracing_span = format!(
             r#"
-            use tracing_futures::Instrument;
-            let body_span = tracing::{}_span!("{}");
+            use ::tracing_futures::Instrument;
+            let body_span = ::tracing::{}_span!("{}");
             let body = body.instrument(body_span);
         "#,
             level, fn_name

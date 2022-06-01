@@ -118,7 +118,7 @@ pub const empty_trace_span: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn empty_trace_span() {
     let body = async {};
-    use tracing_futures::Instrument;
+    use ::tracing_futures::Instrument;
     let body_span = {
         use ::tracing::__macro_support::Callsite as _;
         static CALLSITE: ::tracing::__macro_support::MacroCallsite = {
