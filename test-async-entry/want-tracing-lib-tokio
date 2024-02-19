@@ -3,15 +3,23 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+#[allow(unused_imports)]
+use lib_crate::monoio;
+#[allow(unused_imports)]
 use lib_crate::tokio;
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "specify_trace_lib"]
 pub const specify_trace_lib: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("specify_trace_lib"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-tracing-lib.rs",
+        start_line: 9usize,
+        start_col: 10usize,
+        end_line: 9usize,
+        end_col: 27usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -34,7 +42,7 @@ fn specify_trace_lib() {
                     "it_tracing_lib",
                     ::tracing::Level::INFO,
                     Some("test-async-entry/tests/it-tracing-lib.rs"),
-                    Some(5u32),
+                    Some(8u32),
                     Some("it_tracing_lib"),
                     ::tracing_core::field::FieldSet::new(
                         &[],
@@ -63,7 +71,8 @@ fn specify_trace_lib() {
         }
     };
     let body = body.instrument(body_span);
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -71,6 +80,7 @@ fn specify_trace_lib() {
     rt.block_on(body);
 }
 #[rustc_main]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[&specify_trace_lib])

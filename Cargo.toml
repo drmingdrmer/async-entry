@@ -1,4 +1,7 @@
 [workspace]
+
+resolver = "1"
+
 members = [
     "async-entry",
     "test-async-entry",

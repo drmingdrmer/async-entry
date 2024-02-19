@@ -3,14 +3,24 @@
 use std::prelude::rust_2021::*;
 #[macro_use]
 extern crate std;
+#[allow(unused_imports)]
+use lib_crate::monoio;
+#[allow(unused_imports)]
+use lib_crate::tokio;
+use lib_crate::tracing;
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "empty"]
 pub const empty: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("empty"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 10usize,
+        start_col: 10usize,
+        end_line: 10usize,
+        end_col: 15usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -20,7 +30,8 @@ pub const empty: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn empty() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -29,12 +40,17 @@ fn empty() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "empty_with_parentheses"]
 pub const empty_with_parentheses: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("empty_with_parentheses"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 13usize,
+        start_col: 10usize,
+        end_line: 13usize,
+        end_col: 32usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -44,7 +60,8 @@ pub const empty_with_parentheses: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn empty_with_parentheses() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -53,12 +70,17 @@ fn empty_with_parentheses() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "empty_tail_expr"]
 pub const empty_tail_expr: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("empty_tail_expr"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 16usize,
+        start_col: 10usize,
+        end_line: 16usize,
+        end_col: 25usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -68,7 +90,8 @@ pub const empty_tail_expr: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn empty_tail_expr() -> anyhow::Result<()> {
     let body = async { Ok(()) };
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -77,12 +100,17 @@ fn empty_tail_expr() -> anyhow::Result<()> {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "empty_return_expr"]
 pub const empty_return_expr: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("empty_return_expr"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 21usize,
+        start_col: 10usize,
+        end_line: 21usize,
+        end_col: 27usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -94,7 +122,8 @@ fn empty_return_expr() -> anyhow::Result<()> {
     let body = async {
         return Ok(());
     };
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -103,12 +132,17 @@ fn empty_return_expr() -> anyhow::Result<()> {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "empty_trace_span"]
 pub const empty_trace_span: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("empty_trace_span"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 26usize,
+        start_col: 10usize,
+        end_line: 26usize,
+        end_col: 26usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -126,11 +160,11 @@ fn empty_trace_span() {
             static META: ::tracing::Metadata<'static> = {
                 ::tracing_core::metadata::Metadata::new(
                     "empty_trace_span",
-                    "it",
+                    "it_external",
                     ::tracing::Level::INFO,
-                    Some("async-entry/tests/it.rs"),
-                    Some(17u32),
-                    Some("it"),
+                    Some("test-async-entry/tests/it-external.rs"),
+                    Some(25u32),
+                    Some("it_external"),
                     ::tracing_core::field::FieldSet::new(
                         &[],
                         ::tracing_core::callsite::Identifier(&CALLSITE),
@@ -158,7 +192,8 @@ fn empty_trace_span() {
         }
     };
     let body = body.instrument(body_span);
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -167,34 +202,39 @@ fn empty_trace_span() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
-pub const empty_trace_lib: test::TestDescAndFn = test::TestDescAndFn {
+#[rustc_test_marker = "specify_trace_lib_to_root"]
+pub const specify_trace_lib_to_root: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
-        name: test::StaticTestName("empty_trace_lib"),
+        name: test::StaticTestName("specify_trace_lib_to_root"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 29usize,
+        start_col: 10usize,
+        end_line: 29usize,
+        end_col: 35usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
         test_type: test::TestType::IntegrationTest,
     },
-    testfn: test::StaticTestFn(|| test::assert_test_result(empty_trace_lib())),
+    testfn: test::StaticTestFn(|| test::assert_test_result(specify_trace_lib_to_root())),
 };
-fn empty_trace_lib() {
+fn specify_trace_lib_to_root() {
     let body = async {};
-    use tracing::Instrument;
+    use ::tracing::Instrument;
     let body_span = {
         use ::tracing::__macro_support::Callsite as _;
         static CALLSITE: ::tracing::__macro_support::MacroCallsite = {
             use ::tracing::__macro_support::MacroCallsite;
             static META: ::tracing::Metadata<'static> = {
                 ::tracing_core::metadata::Metadata::new(
-                    "empty_trace_lib",
-                    "it",
+                    "specify_trace_lib_to_root",
+                    "it_external",
                     ::tracing::Level::INFO,
-                    Some("async-entry/tests/it.rs"),
-                    Some(20u32),
-                    Some("it"),
+                    Some("test-async-entry/tests/it-external.rs"),
+                    Some(28u32),
+                    Some("it_external"),
                     ::tracing_core::field::FieldSet::new(
                         &[],
                         ::tracing_core::callsite::Identifier(&CALLSITE),
@@ -222,7 +262,8 @@ fn empty_trace_lib() {
         }
     };
     let body = body.instrument(body_span);
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -232,12 +273,17 @@ fn empty_trace_lib() {
 fn g() {}
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "with_init"]
 pub const with_init: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("with_init"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 34usize,
+        start_col: 10usize,
+        end_line: 34usize,
+        end_col: 19usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -248,7 +294,8 @@ pub const with_init: test::TestDescAndFn = test::TestDescAndFn {
 fn with_init() {
     let _g = g();
     let body = async {};
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -257,12 +304,17 @@ fn with_init() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "current_thread"]
 pub const current_thread: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("current_thread"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 37usize,
+        start_col: 10usize,
+        end_line: 37usize,
+        end_col: 24usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -272,7 +324,8 @@ pub const current_thread: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn current_thread() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -281,12 +334,17 @@ fn current_thread() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "multi_thread"]
 pub const multi_thread: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multi_thread"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 40usize,
+        start_col: 10usize,
+        end_line: 40usize,
+        end_col: 22usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -296,7 +354,8 @@ pub const multi_thread: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn multi_thread() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_multi_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -305,12 +364,17 @@ fn multi_thread() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "multi_thread_0"]
 pub const multi_thread_0: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multi_thread_0"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 43usize,
+        start_col: 10usize,
+        end_line: 43usize,
+        end_col: 24usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -320,7 +384,8 @@ pub const multi_thread_0: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn multi_thread_0() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_current_thread()
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -329,12 +394,17 @@ fn multi_thread_0() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "multi_thread_n"]
 pub const multi_thread_n: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multi_thread_n"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 46usize,
+        start_col: 10usize,
+        end_line: 46usize,
+        end_col: 24usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -344,8 +414,8 @@ pub const multi_thread_n: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn multi_thread_n() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(10usize)
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -354,12 +424,17 @@ fn multi_thread_n() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "multi_thread_n_without_flavor"]
 pub const multi_thread_n_without_flavor: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("multi_thread_n_without_flavor"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 49usize,
+        start_col: 10usize,
+        end_line: 49usize,
+        end_col: 39usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -369,8 +444,8 @@ pub const multi_thread_n_without_flavor: test::TestDescAndFn = test::TestDescAnd
 };
 fn multi_thread_n_without_flavor() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(10usize)
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -379,12 +454,17 @@ fn multi_thread_n_without_flavor() {
 }
 extern crate test;
 #[cfg(test)]
-#[rustc_test_marker]
+#[rustc_test_marker = "start_paused"]
 pub const start_paused: test::TestDescAndFn = test::TestDescAndFn {
     desc: test::TestDesc {
         name: test::StaticTestName("start_paused"),
         ignore: false,
         ignore_message: ::core::option::Option::None,
+        source_file: "test-async-entry/tests/it-external.rs",
+        start_line: 52usize,
+        start_col: 10usize,
+        end_line: 52usize,
+        end_col: 22usize,
         compile_fail: false,
         no_run: false,
         should_panic: test::ShouldPanic::No,
@@ -394,8 +474,8 @@ pub const start_paused: test::TestDescAndFn = test::TestDescAndFn {
 };
 fn start_paused() {
     let body = async {};
-    let rt = tokio::runtime::Builder::new_current_thread()
-        .start_paused(true)
+    #[allow(unused_mut)]
+    let mut rt = monoio::RuntimeBuilder::<monoio::FusionDriver>::new()
         .enable_all()
         .build()
         .expect("Failed building the Runtime");
@@ -403,21 +483,22 @@ fn start_paused() {
     rt.block_on(body);
 }
 #[rustc_main]
+#[coverage(off)]
 pub fn main() -> () {
     extern crate test;
     test::test_main_static(&[
-        &empty,
-        &empty_with_parentheses,
-        &empty_tail_expr,
-        &empty_return_expr,
-        &empty_trace_span,
-        &empty_trace_lib,
-        &with_init,
         &current_thread,
+        &empty,
+        &empty_return_expr,
+        &empty_tail_expr,
+        &empty_trace_span,
+        &empty_with_parentheses,
         &multi_thread,
         &multi_thread_0,
         &multi_thread_n,
         &multi_thread_n_without_flavor,
+        &specify_trace_lib_to_root,
         &start_paused,
+        &with_init,
     ])
 }

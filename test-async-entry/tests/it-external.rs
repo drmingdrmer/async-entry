@@ -1,5 +1,8 @@
 // Use the imported mod e.g. `tracing` to build.
 
+#[allow(unused_imports)]
+use lib_crate::monoio;
+#[allow(unused_imports)]
 use lib_crate::tokio;
 use lib_crate::tracing;
 

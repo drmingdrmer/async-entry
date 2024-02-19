@@ -13,6 +13,11 @@ extended Tokio's proc macros.
 categories = ["asynchronous"]
 
 
+[features]
+
+tokio = ["async-entry/tokio"]
+monoio = ["async-entry/monoio"]
+
 
 [dependencies]
 syn = { version = "1.0.56", features = ["full"] }

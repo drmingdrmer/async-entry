@@ -12,8 +12,21 @@ extended Tokio's proc macros.
 """
 categories = ["asynchronous"]
 
+[features]
+
+default = []
+
+# Use tokio as runtime:
+# https://tokio.rs/
+tokio = []
+
+# Use monoio as runtime:
+# https://github.com/bytedance/monoio
+monoio = []
+
 [lib]
 proc-macro = true
+
 
 [dependencies]
 syn = { version = "1.0.56", features = ["full"] }
@@ -24,4 +37,5 @@ proc-macro2 = "1.0.7"
 [dev-dependencies]
 anyhow = "1.0.55"
 tokio = { version = "1.7.1", features = ["macros", "rt","rt-multi-thread", "sync", "test-util"] }
+monoio = { version = "0.1.0", features = [] }
 tracing = "0.1.29"

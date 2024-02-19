@@ -5,8 +5,20 @@ use proc_macro2::Span;
 use quote::quote;
 use quote::quote_spanned;
 use quote::ToTokens;
+use syn::__private::TokenStream2;
 use syn::parse::Parser;
 use syn::ItemFn;
+
+fn get_runtime_name() -> &'static str {
+    if cfg!(feature = "tokio") {
+        return "tokio";
+    }
+    if cfg!(feature = "monoio") {
+        return "monoio";
+    } else {
+        return "tokio";
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum RuntimeFlavor {
@@ -143,9 +155,17 @@ impl Configuration {
 
     fn macro_name(&self) -> &'static str {
         if self.is_test {
-            "tokio::test"
+            match get_runtime_name() {
+                "tokio" => "tokio::test",
+                "monoio" => "monoio::test",
+                _ => unreachable!(),
+            }
         } else {
-            "tokio::main"
+            match get_runtime_name() {
+                "tokio" => "tokio::main",
+                "monoio" => "monoio::main",
+                _ => unreachable!(),
+            }
         }
     }
 
@@ -333,9 +353,17 @@ fn build_config(args: AttributeArgs, rt_multi_thread: bool) -> Result<FinalConfi
 
 type AttributeArgs = syn::punctuated::Punctuated<syn::NestedMeta, syn::Token![,]>;
 
-/// Marks async function to be executed by runtime, suitable to test environment
+/// Marks async function to be executed by async runtime, suitable to test environment
 ///
-/// ## Usage
+/// It supports:
+/// - [tokio](https://tokio.rs/)
+/// - [monoio](https://github.com/bytedance/monoio)
+///
+/// By default it uses `tokio` runtime. Switch runtime with feature flags:
+/// - `tokio`: tokio runtime;
+/// - `monoio`: monoio runtime;
+///
+/// ## Usage for tokio runtime
 ///
 /// ### Multi-thread runtime
 ///
@@ -432,6 +460,29 @@ type AttributeArgs = syn::punctuated::Punctuated<syn::NestedMeta, syn::Token![,]
 /// // }
 /// ```
 ///
+/// ## Usage for monoio runtime
+///
+/// **When using `monoio` runtime with feature flag `monoio` enabled:
+/// `flavor`, `worker_threads` and `start_paused` are ignored**.
+///
+/// It is the same as using `tokio` runtime, except the runtime is `monoio`:
+///
+/// ```no_run
+/// #[async_entry::test()]
+/// async fn my_test() {
+///     assert!(true);
+/// }
+/// // Will produce:
+/// //
+/// // fn my_test() {
+/// //     // ...
+/// //
+/// //     let body = async { assert!(true); };
+/// //     let rt = monoio::RuntimeBuilder::<_>::new()...
+/// //     rt.block_on(body);
+/// // }
+/// ```
+///
 /// ### NOTE:
 ///
 /// If you rename the async_entry crate in your dependencies this macro will not work.
@@ -479,31 +530,7 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
 
     let test_attr = quote! { #[::core::prelude::v1::test] };
 
-    let mut rt_builder = quote! { tokio::runtime::Builder };
-
-    rt_builder = match config.flavor {
-        RuntimeFlavor::CurrentThread => quote_spanned! {last_stmt_start_span=>
-            #rt_builder::new_current_thread()
-        },
-        RuntimeFlavor::Threaded => quote_spanned! {last_stmt_start_span=>
-            #rt_builder::new_multi_thread()
-        },
-    };
-
-    if let Some(v) = config.worker_threads {
-        rt_builder = quote! { #rt_builder.worker_threads(#v) };
-    }
-
-    if let Some(v) = config.start_paused {
-        rt_builder = quote! { #rt_builder.start_paused(#v) };
-    }
-
-    let rt = quote! {
-        #rt_builder
-            .enable_all()
-            .build()
-            .expect("Failed building the Runtime")
-    };
+    let rt = build_runtime(last_stmt_start_span, &config)?;
 
     let init = if let Some(init) = config.init {
         let init_str = format!("let _g = {};", init.0);
@@ -563,7 +590,8 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
 
             #body_tracing_span
 
-            let rt = #rt;
+            #[allow(unused_mut)]
+            let mut rt = #rt;
 
             #[allow(clippy::expect_used)]
             #tail_return rt.block_on(body) #tail_semicolon
@@ -581,6 +609,50 @@ fn build_test_fn(mut item_fn: ItemFn, config: FinalConfig) -> Result<TokenStream
 
     let x: TokenStream = res.into_token_stream().into();
     Ok(x)
+}
+
+/// Build a statement that builds a async runtime,
+/// e.g. `let rt = Builder::new_multi_thread().build().expect("");`
+fn build_runtime(span: Span, config: &FinalConfig) -> Result<TokenStream2, syn::Error> {
+    let rt_builder = {
+        match get_runtime_name() {
+            "tokio" => {
+                let mut rt_builder = quote! { tokio::runtime::Builder };
+
+                rt_builder = match config.flavor {
+                    RuntimeFlavor::CurrentThread => quote_spanned! {span=>
+                        #rt_builder::new_current_thread()
+                    },
+                    RuntimeFlavor::Threaded => quote_spanned! {span=>
+                        #rt_builder::new_multi_thread()
+                    },
+                };
+
+                if let Some(v) = config.worker_threads {
+                    rt_builder = quote! { #rt_builder.worker_threads(#v) };
+                }
+
+                if let Some(v) = config.start_paused {
+                    rt_builder = quote! { #rt_builder.start_paused(#v) };
+                }
+                rt_builder
+            }
+            "monoio" => {
+                let rt_builder = quote! { monoio::RuntimeBuilder::<monoio::FusionDriver>::new() };
+                rt_builder
+            }
+            _ => unreachable!(),
+        }
+    };
+
+    let rt: TokenStream2 = quote! {
+        #rt_builder
+            .enable_all()
+            .build()
+            .expect("Failed building the Runtime")
+    };
+
+    Ok(rt)
 }
 
 /// Parse TokenStream of some fn

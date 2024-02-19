@@ -1,3 +1,6 @@
+#[allow(unused_imports)]
+use lib_crate::monoio;
+#[allow(unused_imports)]
 use lib_crate::tokio;
 
 /// Specify where to load tracing and tracing_future.
