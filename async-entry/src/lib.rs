@@ -11,12 +11,11 @@ use syn::ItemFn;
 
 fn get_runtime_name() -> &'static str {
     if cfg!(feature = "tokio") {
-        return "tokio";
-    }
-    if cfg!(feature = "monoio") {
-        return "monoio";
+        "tokio"
+    } else if cfg!(feature = "monoio") {
+        "monoio"
     } else {
-        return "tokio";
+        "tokio"
     }
 }
 
@@ -490,12 +489,10 @@ type AttributeArgs = syn::punctuated::Punctuated<syn::NestedMeta, syn::Token![,]
 pub fn test(args: TokenStream, item: TokenStream) -> TokenStream {
     let tokens = entry_test(args, item.clone());
 
-    let res = match tokens {
+    match tokens {
         Ok(x) => x,
-        Err(e) => return token_stream_with_error(item, e),
-    };
-
-    res
+        Err(e) => token_stream_with_error(item, e),
+    }
 }
 
 /// Entry of async test fn.
@@ -674,7 +671,7 @@ fn check_dup_test_attr(input: &ItemFn) -> Result<(), syn::Error> {
     let mut attrs = input.attrs.iter();
     let found = attrs.find(|a| a.path.is_ident("test"));
     if let Some(attr) = found {
-        return Err(syn::Error::new_spanned(&attr, "dup test"));
+        return Err(syn::Error::new_spanned(attr, "dup test"));
     }
 
     Ok(())
@@ -682,7 +679,7 @@ fn check_dup_test_attr(input: &ItemFn) -> Result<(), syn::Error> {
 
 /// Parse rust source code in str and produce a TokenStream
 fn str_to_p2tokens(s: &str, span: Span) -> Result<proc_macro2::TokenStream, syn::Error> {
-    let toks = proc_macro2::TokenStream::from_str(s).map_err(|e| syn::Error::new(span, &e))?;
+    let toks = proc_macro2::TokenStream::from_str(s).map_err(|e| syn::Error::new(span, e))?;
     Ok(toks)
 }
 
